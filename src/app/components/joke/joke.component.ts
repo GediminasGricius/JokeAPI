@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Joke } from 'src/app/models/joke';
+import { JokeService } from 'src/app/services/joke.service';
 
 @Component({
   selector: 'app-joke',
@@ -18,7 +18,10 @@ export class JokeComponent implements OnInit {
     type:''
   };
 
-  constructor(private http:HttpClient) {  }
+  public isLoading:boolean=true;
+  public isError:boolean=false;
+
+  constructor(private jokeService:JokeService) {  }
 
 
   ngOnInit(): void {
@@ -26,12 +29,18 @@ export class JokeComponent implements OnInit {
   }
 
   private loadJoke(){
-    this.http.get<Joke>("https://v2.jokeapi.dev/joke/Any?type=single").subscribe(
-      (response)=>{
+    this.jokeService.loadJoke().subscribe({
+      next:(response)=>{
         this.joke=response;
+        this.isLoading=false;
+      },
+      error:(error)=>{
+        this.isLoading=false;
+        this.isError=true;
       }
-    )
+    });
   }
+    
 
   nextJoke(){
     this.loadJoke();
